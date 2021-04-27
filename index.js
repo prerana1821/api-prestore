@@ -12,9 +12,11 @@ initializeDBConnection();
 
 const { addProductsToDB } = require("./models/product.model");
 const { addAuthToDB } = require("./models/auth.model");
+const { addUserToDB } = require("./models/user.model");
 
 // addProductsToDB();
 // addAuthToDB();
+// addUserToDB();
 
 const product = require("./routes/products.router");
 const auth = require("./routes/auth.router");

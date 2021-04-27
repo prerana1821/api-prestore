@@ -11,7 +11,6 @@ const categories = [
 
 const products = [...Array(10)].map((_) => (
   {
-    id: faker.datatype.uuid(),
     name: faker.commerce.productName(),
     image: faker.random.image(),
     price: faker.commerce.price(),
@@ -47,7 +46,7 @@ const products = [...Array(10)].map((_) => (
 
 const users = [
   {
-    id: "1",
+    _id: "6087c9bc55425c068fef2e0a",
     wishList: [],
     cart: [],
     loading: "",
@@ -56,7 +55,6 @@ const users = [
 
 const auth = [
   {
-    id: "1",
     username: "admin",
     email: "admin@gmail.com",
     password: "admin",

@@ -11,37 +11,45 @@ let productID = 400;
 //   },
 // ]
 
+const { User } = require("../models/user.model");
 const { users } = require("../data");
 
+// const findUserByID = (id) => {
+//   return User.findById(id);
+// };
+
 router.route("/cart/:id")
-  .get((req, res) => {
+  .get(async (req, res) => {
     const { id } = req.params;
     console.log(id);
-    const user = users.find((item) => item.id === id);
+    const user = await User.findById(id);
     console.log(user);
     if (user) {
       return res.status(200).json({ cart: user.cart, success: true, message: "Success" })
     } return res.status(404).json({ success: false, message: "Try again later" })
   })
-  .post((req, res) => {
+  .post(async (req, res) => {
     const { id } = req.params;
-    const newProduct = req.body;
-    // console.log(newProduct);
-    const user = users.find((item) => item.id === id);
+    const productId = req.body;
+    const user = await User.findById(id);
     if (user) {
-      const product = { ...newProduct.product, quantity: 1 }
-      // console.log(product);
-      user.cart.push(product);
-      // console.log(user);
-      // console.log(user.cart);
-      return res.status(201).json({ product, success: true, message: "Successful" });
+      user.cart.push({ productId: productId.id, quantity: 1 });
+      const savedProduct = await user.save();
+      const updatedObj = await savedProduct.populate({ path: 'cart.productId', select: 'name image price inStock offer' }).execPopulate();
+      const object = updatedObj.cart.map((item) => {
+        const { _id, productId, quantity } = item;
+        return { _id, productId: { ...productId._doc, quantity } }
+      })
+      return res.status(201).json({ cart: object, success: true, message: "Successful" });
     } res.status(401).json({ success: false, message: "Try again later" })
   })
 
 router.route("/wishlist/:id")
-  .get((req, res) => {
+  .get(async (req, res) => {
     const { id } = req.params;
-    const user = users.find((item) => item.id === id);
+    console.log(id);
+    const user = await User.findById(id);
+    console.log(user);
     if (user) {
       return res.status(200).json({ wishList: user.wishList, success: true, message: "Success" })
     } res.status(404).json({ success: false, message: "Try again later" })

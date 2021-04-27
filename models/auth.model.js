@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
-const { auth } = require("../data");
+const { auth, users } = require("../data");
 const { Schema } = mongoose;
+const { User } = require("./user.model");
 
 const AuthSchema = new Schema({
   username: String,
@@ -15,6 +16,11 @@ const addAuthToDB = () => {
     const NewAuthUser = new Auth(user);
     const savedAuthUser = await NewAuthUser.save();
     console.log(savedAuthUser);
+  })
+  users.forEach(async (user) => {
+    const NewUser = new User(user);
+    const savedUser = await NewUser.save();
+    console.log(savedUser);
   })
 }
 
