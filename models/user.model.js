@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const { users } = require("../data");
 const { Schema } = mongoose;
-const { Auth } = require("./auth.model");
-const { Product } = require("./product.model");
 
 const UserSchema = new Schema({
   _id: { type: Schema.Types.ObjectId, ref: 'Auth' },

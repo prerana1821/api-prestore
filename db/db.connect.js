@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 
+const uri = process.env['uri'];
 const initializeDBConnection = async () => {
   try {
-    const connection = await mongoose.connect('mongodb+srv://preStore:preStore@prestore-cluster.py3ia.mongodb.net/store?retryWrites=true&w=majority', {
+    const connection = await mongoose.connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });

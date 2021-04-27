@@ -62,3 +62,21 @@ const auth = [
 ];
 
 module.exports = { users, auth, products }
+
+// const users = [
+//   {
+//     id: "1",
+//     wishList: [],
+//     cart: [],
+//     loading: "",
+//   },
+// ]
+
+// const auth = [
+//   {
+//     id: "1",
+//     username: "admin",
+//     email: "admin@gmail.com",
+//     password: "admin",
+//   },
+// ];

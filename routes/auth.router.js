@@ -3,29 +3,11 @@ const router = express.Router();
 const { Auth } = require("../models/auth.model");
 const { User } = require("../models/user.model");
 
-
-// let userId = "2";
-// const auth = [
-//   {
-//     id: "1",
-//     username: "admin",
-//     email: "admin@gmail.com",
-//     password: "admin",
-//   },
-// ];
-
-// const { auth, users } = require("../data");
-
 const findUserByUserName = (username) => {
   return Auth.findOne({ username: new RegExp('^' + username + '$', "i") }, function(err, user) {
     if (err) return console.log(err);
-    // else console.log(user.username, user.password);
   })
 };
-
-// const findUserByUserName = (username) => {
-//   return auth.find((user) => user.username === username);
-// };
 
 router.get("/", async (req, res) => {
   const auth = await Auth.find({});
@@ -45,26 +27,15 @@ router.post("/login", async (req, res) => {
 router.post("/signup", async (req, res) => {
   const { username, password, email } = req.body;
   const userName = await findUserByUserName(username);
-  // console.log(userName);
   if (userName === null) {
     try {
-      // console.log('Hello');
       const NewUser = new Auth({ username, password, email });
-      const savedUser = await NewUser.save(
-        function(err) {
-          if (err) return console.log(err);
-
-          const NewUserDetails = new User({
-            _id: NewUser._id,
-            wishList: [], cart: [], loading: ""
-          });
-
-          NewUserDetails.save(function(err) {
-            if (err) return console.log(err);
-          });
-        }
-      );
-      // console.log(savedUser);
+      const savedUser = await NewUser.save();
+      const NewUserDetails = new User({
+        _id: NewUser._id,
+        wishList: [], cart: [], loading: ""
+      });
+      const savedUserDetails = await NewUserDetails.save();
       return res.status(201).json({ user: savedUser, success: true, message: "Sign Up Successful" })
     } catch (error) {
       return res.status(401).json({ success: false, message: "Error while adding user" })

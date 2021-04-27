@@ -2,15 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { extend } = require("lodash");
 
-// const users = [
-//   {
-//     id: "1",
-//     wishList: [],
-//     cart: [],
-//     loading: "",
-//   },
-// ]
-
 const { User } = require("../models/user.model");
 
 router.route("/cart/:id")
@@ -18,7 +9,12 @@ router.route("/cart/:id")
     const { id } = req.params;
     const user = await User.findById(id);
     if (user) {
-      return res.status(200).json({ cart: user.cart, success: true, message: "Success" })
+      const wholeObj = await user.populate('cart.productId').execPopulate();
+      const object = wholeObj.cart.map((item) => {
+        const { _id, productId, quantity } = item;
+        return { _id, productId: { ...productId._doc, quantity } }
+      })
+      return res.status(200).json({ cart: object, success: true, message: "Success" })
     } return res.status(404).json({ success: false, message: "Try again later" })
   })
   .post(async (req, res) => {
@@ -42,7 +38,8 @@ router.route("/wishlist/:id")
     const { id } = req.params;
     const user = await User.findById(id);
     if (user) {
-      return res.status(200).json({ wishList: user.wishList, success: true, message: "Success" })
+      const wholeObj = await user.populate('wishList.productId').execPopulate();
+      return res.status(200).json({ wishList: wholeObj.wishList, success: true, message: "Success" })
     } res.status(404).json({ success: false, message: "Try again later" })
   })
   .post(async (req, res) => {
