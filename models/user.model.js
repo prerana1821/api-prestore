@@ -15,7 +15,6 @@ const addUserToDB = () => {
   users.forEach(async (user) => {
     const NewUser = new User(user);
     const savedUser = await NewUser.save();
-    console.log(savedUser);
   })
 }
 

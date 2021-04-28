@@ -16,9 +16,7 @@ router.get("/", async (req, res) => {
 router.route("/cart/:id")
   .get(async (req, res) => {
     const { id } = req.params;
-    console.log(id);
     const user = await User.findById(id);
-    console.log(user);
     if (user) {
       const wholeObj = await user.populate('cart.productId').execPopulate();
       const object = wholeObj.cart.map((item) => {

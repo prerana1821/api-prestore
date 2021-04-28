@@ -24,7 +24,6 @@ const addProductsToDB = () => {
   products.forEach(async (product) => {
     const NewProduct = new Product(product);
     const savedProduct = await NewProduct.save();
-    console.log(savedProduct);
   })
 }
 

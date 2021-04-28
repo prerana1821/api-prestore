@@ -9,7 +9,7 @@ const categories = [
   "Swimming Kits",
 ];
 
-const products = [...Array(10)].map((_) => (
+const products = [...Array(20)].map((_) => (
   {
     name: faker.commerce.productName(),
     image: faker.random.image(),
@@ -62,21 +62,3 @@ const auth = [
 ];
 
 module.exports = { users, auth, products }
-
-// const users = [
-//   {
-//     id: "1",
-//     wishList: [],
-//     cart: [],
-//     loading: "",
-//   },
-// ]
-
-// const auth = [
-//   {
-//     id: "1",
-//     username: "admin",
-//     email: "admin@gmail.com",
-//     password: "admin",
-//   },
-// ];

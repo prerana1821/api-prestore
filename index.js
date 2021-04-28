@@ -14,6 +14,7 @@ const { addProductsToDB } = require("./models/product.model");
 const { addAuthToDB } = require("./models/auth.model");
 const { addUserToDB } = require("./models/user.model");
 
+// will run only once
 // addProductsToDB();
 // addAuthToDB();
 // addUserToDB();
