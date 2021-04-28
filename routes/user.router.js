@@ -4,10 +4,21 @@ const { extend } = require("lodash");
 
 const { User } = require("../models/user.model");
 
+router.get("/", async (req, res) => {
+  try {
+    const userDetails = await User.find({});
+    res.status(200).json({ userDetails, success: true, message: "Successful" })
+  } catch (error) {
+    res.status(404).json({ success: false, message: "Error while retrieving products", errorMessage: error.message })
+  }
+})
+
 router.route("/cart/:id")
   .get(async (req, res) => {
     const { id } = req.params;
+    console.log(id);
     const user = await User.findById(id);
+    console.log(user);
     if (user) {
       const wholeObj = await user.populate('cart.productId').execPopulate();
       const object = wholeObj.cart.map((item) => {
