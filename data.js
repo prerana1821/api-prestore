@@ -46,7 +46,7 @@ const products = [...Array(20)].map((_) => (
 
 const users = [
   {
-    _id: "6087c9bc55425c068fef2e0a",
+    _id: "608a50e395c4ab044f7a7944",
     wishList: [],
     cart: [],
     loading: "",
@@ -55,6 +55,7 @@ const users = [
 
 const auth = [
   {
+    id:"33232",
     username: "admin",
     email: "admin@gmail.com",
     password: "admin",
