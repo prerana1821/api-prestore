@@ -8,7 +8,6 @@ const UserSchema = new Schema({
   cart: [{ 
     productId: { type: Schema.Types.ObjectId, ref: 'Product' }, quantity: Number 
   }],
-  loading: "",
   addresses: [
     {
       name: String,

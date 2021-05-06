@@ -49,13 +49,11 @@ const users = [
     _id: "608a50e395c4ab044f7a7944",
     wishList: [],
     cart: [],
-    loading: "",
   },
 ]
 
 const auth = [
   {
-    id:"33232",
     username: "admin",
     email: "admin@gmail.com",
     password: "admin",

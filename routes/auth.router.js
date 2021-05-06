@@ -33,9 +33,10 @@ router.post("/signup", async (req, res) => {
       const savedUser = await NewUser.save();
       const NewUserDetails = new User({
         _id: NewUser._id,
-        wishList: [], cart: [], loading: ""
+        wishList: [], cart: []
       });
       const savedUserDetails = await NewUserDetails.save();
+      console.log(savedUserDetails);
       return res.status(201).json({ user: savedUser, success: true, message: "Sign Up Successful" })
     } catch (error) {
       return res.status(401).json({ success: false, message: "Error while adding user" })
