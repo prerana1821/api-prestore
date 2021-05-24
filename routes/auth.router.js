@@ -33,7 +33,7 @@ router.post("/signup", async (req, res) => {
       const savedUser = await NewUser.save();
       const NewUserDetails = new User({
         _id: NewUser._id,
-        wishList: [], cart: []
+        wishList: [], cart: [], addresses: []
       });
       const savedUserDetails = await NewUserDetails.save();
       console.log(savedUserDetails);

@@ -9,7 +9,17 @@ router.get("/", async (req, res) => {
     const userDetails = await User.find({});
     res.status(200).json({ userDetails, success: true, message: "Successful" })
   } catch (error) {
-    res.status(404).json({ success: false, message: "Error while retrieving products", errorMessage: error.message })
+    res.status(404).json({ success: false, message: "Error while retrieving details", errorMessage: error.message })
+  }
+})
+
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    res.status(200).json({ user, success: true, message: "Successful" })
+  } catch (error) {
+    res.status(404).json({ success: false, message: "Error while retrieving userDetails", errorMessage: error.message })
   }
 })
 
@@ -54,11 +64,14 @@ router.route("/wishlist/:id")
   .post(async (req, res) => {
     const { id } = req.params;
     const productId = req.body;
+    console.log(productId)
     const user = await User.findById(id);
+    console.log(user);
     if (user) {
       user.wishList.push({ productId: productId.id });
       const savedProduct = await user.save();
       const updatedObj = await savedProduct.populate('wishList.productId').execPopulate();
+      console.log(updatedObj);
       return res.status(201).json({ wishList: updatedObj.wishList, success: true, message: "Successful" });
     } res.status(401).json({ success: false, message: "Try again later" })
   })
@@ -99,7 +112,6 @@ router.delete("/wishlist/:id/:productID", async (req, res) => {
       user.wishList.pull({ _id: product._id });
       await user.save();
       return res.status(200).json({ wishList: user.wishList, success: true, message: "Successful" });
-
     } return res.status(404).json({ succes: false, message: "The product id you requested doesn't exists" });
   } return res.status(404).json({ success: false, message: "Try again later" })
 })

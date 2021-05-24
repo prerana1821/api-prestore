@@ -1,12 +1,22 @@
 const faker = require('faker');
 faker.seed(123);
 
+// // Products
+// const categories = [
+//   "Men's Swim Shorts",
+//   "Floatation Devices",
+//   "Training Kickboards",
+//   "Kiddie Pools",
+//   "Swimming Kits",
+// ];
+
+// In DB
 const categories = [
-  "Men's Swim Shorts",
-  "Floatation Devices",
-  "Training Kickboards",
-  "Kiddie Pools",
-  "Swimming Kits",
+  { name: "Men's Swim Shorts" },
+  { name: "Floatation Devices" },
+  { name: "Training Kickboards" },
+  { name: "Kiddie Pools" },
+  { name: "Swimming Kits" },
 ];
 
 const products = [...Array(20)].map((_) => (
@@ -60,4 +70,4 @@ const auth = [
   },
 ];
 
-module.exports = { users, auth, products }
+module.exports = { users, auth, products, categories }
