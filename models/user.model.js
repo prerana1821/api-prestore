@@ -3,24 +3,56 @@ const { users } = require("../data");
 const { Schema } = mongoose;
 
 const UserSchema = new Schema({
+  createdAt: Number,
+  updatedAt: Number,
   _id: { type: Schema.Types.ObjectId, ref: 'Auth' },
   wishList: [{ productId: { type: Schema.Types.ObjectId, ref: 'Product' } }],
-  cart: [{ 
-    productId: { type: Schema.Types.ObjectId, ref: 'Product' }, quantity: Number 
+  cart: [{
+    productId: { type: Schema.Types.ObjectId, ref: 'Product' }, quantity: Number
   }],
   addresses: [
     {
-      name: String,
-      phoneNumber: Number,
-      zipCode: Number,
-      city: String,
-      address: String,
-      state: String,
-      country: String,
-      addressType: String
+      name: {
+        type: String,
+        required: [true, 'Please add your name'],
+      },
+      phoneNumber: {
+        type: Number,
+        required: [true, 'Please add your Phone Number'],
+      },
+      zipCode: {
+        type: Number,
+        required: [true, 'Please add your zip code'],
+      },
+      city: {
+        type: String,
+        required: [true, 'Please add your city'],
+      },
+      address: {
+        type: String,
+        required: [true, 'Please add your address'],
+      },
+      state: {
+        type: String,
+        required: [true, 'Please add your start'],
+      },
+      country: {
+        type: String,
+        required: [true, 'Please add your Country'],
+      },
+      addressType: {
+        type: String,
+        enum: {
+          values: ['Home', 'Office'],
+          message: '{VALUE} is not supported'
+        },
+        required: [true, 'Please add your address Type'],
+      }
     }
   ]
-});
+}, {
+    timestamps: { currentTime: () => Math.floor(Date.now() / 1000) }
+  });
 
 const User = mongoose.model('User', UserSchema);
 

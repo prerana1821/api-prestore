@@ -9,11 +9,6 @@ const findUserByUserName = (username) => {
   })
 };
 
-router.get("/", async (req, res) => {
-  const auth = await Auth.find({});
-  res.json({ auth, success: true })
-})
-
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const user = await findUserByUserName(username);
@@ -36,7 +31,6 @@ router.post("/signup", async (req, res) => {
         wishList: [], cart: [], addresses: []
       });
       const savedUserDetails = await NewUserDetails.save();
-      console.log(savedUserDetails);
       return res.status(201).json({ user: savedUser, success: true, message: "Sign Up Successful" })
     } catch (error) {
       return res.status(401).json({ success: false, message: "Error while adding user" })

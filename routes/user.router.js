@@ -17,7 +17,13 @@ router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id);
-    res.status(200).json({ user, success: true, message: "Successful" })
+    const wholeObj = await user.populate('cart.productId').execPopulate();
+    const wholeObjWish = await user.populate('wishList.productId').execPopulate();
+    const object = wholeObj.cart.map((item) => {
+      const { _id, productId, quantity } = item;
+      return { _id, productId: { ...productId._doc, quantity } }
+    })
+    res.status(200).json({ user: { ...user._doc, cart: object, wishList: wholeObjWish.wishList }, success: true, message: "Successful" })
   } catch (error) {
     res.status(404).json({ success: false, message: "Error while retrieving userDetails", errorMessage: error.message })
   }

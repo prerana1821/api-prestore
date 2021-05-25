@@ -3,9 +3,18 @@ const { products } = require("../data");
 const { Schema } = mongoose;
 
 const ProductSchema = new Schema({
-  name: String,
-  image: String,
-  price: Number,
+  name: {
+    type: String,
+    required: [true, 'Please enter Product Name'],
+  },
+  image: {
+    type: String,
+    required: [true, 'Please enter Product Image'],
+  },
+  price: {
+    type: Number,
+    required: [true, 'Please enter Product Price'],
+  },
   material: String,
   brand: String,
   inStock: Boolean,
