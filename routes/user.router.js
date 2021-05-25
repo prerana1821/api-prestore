@@ -1,17 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { extend } = require("lodash");
-
 const { User } = require("../models/user.model");
-
-router.get("/", async (req, res) => {
-  try {
-    const userDetails = await User.find({});
-    res.status(200).json({ userDetails, success: true, message: "Successful" })
-  } catch (error) {
-    res.status(404).json({ success: false, message: "Error while retrieving details", errorMessage: error.message })
-  }
-})
 
 router.param("id", async (req, res, next, id) => {
   try {
@@ -25,7 +15,6 @@ router.param("id", async (req, res, next, id) => {
     res.status(400).json({ success: false, message: "unable to send user" })
   }
 })
-
 
 router.get("/:id", async (req, res) => {
   try {
