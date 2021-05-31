@@ -25,7 +25,7 @@ router.post("/login", async (req, res) => {
     const validPassword = await bcrypt.compare(password, user.password);
     if (validPassword) {
       const token = generateToken(user._id);
-      return res.status(200).json({ user: { ...user._doc, token }, success: true, message: "Login Successful" })
+      return res.status(200).json({ user, token, success: true, message: "Login Successful" })
     } res.status(403).json({ success: false, errorMessage: "Wrong Password. Enter correct password" })
   } res.status(404).json({ success: false, errorMessage: "User not found. Check your user credentials" })
 })
@@ -45,7 +45,7 @@ router.post("/signup", async (req, res) => {
         wishList: [], cart: [], addresses: []
       });
       const savedUserDetails = await NewUserDetails.save();
-      return res.status(201).json({ user: { ...savedUser._doc, token }, success: true, message: "Sign Up Successful" })
+      return res.status(201).json({ user: savedUser, token, success: true, message: "Sign Up Successful" })
     } catch (error) {
       return res.status(401).json({ success: false, errorMessage: "Error while adding user" })
     }
