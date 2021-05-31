@@ -5,13 +5,14 @@ const { initializeDBConnection } = require("./db/db.connect");
 const { addProductsToDB } = require("./models/product.model");
 const { addAuthToDB } = require("./models/auth.model");
 const { addUserToDB } = require("./models/user.model");
-const {addCategoriesToDB} = require('./models/category.model');
+const { addCategoriesToDB } = require('./models/category.model');
 const product = require("./routes/products.router");
 const auth = require("./routes/auth.router");
 const user = require("./routes/user.router");
 const category = require('./routes/categories.router');
 const { errorHandler } = require("./middlewares/error-handler.middleware");
 const { routeNotFound } = require("./middlewares/route-not-found.middleware");
+const { authVerify } = require('./middlewares/auth-verify.middleware');
 
 const app = express();
 const PORT = 3000;
@@ -28,8 +29,8 @@ initializeDBConnection();
 
 app.use('/products', product);
 app.use('/auth', auth);
-app.use('/user-details', user);
-app.use('/categories',category);
+app.use('/categories', category);
+app.use('/user-details', authVerify, user);
 
 app.get('/', (req, res) => {
   res.json({ success: true, message: 'Hello preStore!' })

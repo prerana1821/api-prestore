@@ -17,7 +17,7 @@ router.get("/:id", async (req, res) => {
   product.__v = undefined;
   if (product) {
     return res.status(200).json({ product, success: true, message: "Successful" })
-  } res.status(404).json({ success: false, message: "The product ID sent has no product associated with it. Check and try again" })
+  } res.status(404).json({ success: false, errorMessage: "The product ID sent has no product associated with it. Check and try again" })
 });
 
 module.exports = router;

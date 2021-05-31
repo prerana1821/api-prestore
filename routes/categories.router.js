@@ -7,7 +7,7 @@ router.get("/", async (req, res) => {
     const categories = await Category.find({});
     res.status(200).json({ categories, success: true, message: "Successful" })
   } catch (error) {
-    res.status(404).json({ success: false, message: "Error while retrieving categories", errorMessage: error.message })
+    res.status(404).json({ success: false, errorMessage: "Error while retrieving categories", errorMessage: error.message })
   }
 })
 
