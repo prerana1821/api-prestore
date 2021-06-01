@@ -3,4 +3,4 @@ const errorHandler = (err, req, res, next) => {
   res.status(500).json({ success: false, errorMessage: err.message })
 }
 
-module.exports = { errorHandler }
+module.exports = { errorHandler };

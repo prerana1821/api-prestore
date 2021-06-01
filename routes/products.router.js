@@ -13,11 +13,15 @@ router.get("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
-  let product = await Product.findById(id);
-  product.__v = undefined;
-  if (product) {
-    return res.status(200).json({ product, success: true, message: "Successful" })
-  } res.status(404).json({ success: false, errorMessage: "The product ID sent has no product associated with it. Check and try again" })
+  try {
+    let product = await Product.findById(id);
+    product.__v = undefined;
+    if (product) {
+      return res.status(200).json({ product, success: true, message: "Successful" })
+    } res.status(404).json({ success: false, errorMessage: "The product ID sent has no product associated with it. Check and try again" })
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Something went wrong", errorMessage: error.message })
+  }
 });
 
 module.exports = router;

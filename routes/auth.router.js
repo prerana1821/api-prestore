@@ -13,21 +13,24 @@ const findUserByUserName = (username) => {
   })
 };
 
-
 const generateToken = (userId) => {
   return jwt.sign({ userId }, jwtSecret, { expiresIn: '24h' });
 }
 
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  const user = await findUserByUserName(username);
-  if (user) {
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (validPassword) {
-      const token = generateToken(user._id);
-      return res.status(200).json({ user, token, success: true, message: "Login Successful" })
-    } res.status(403).json({ success: false, errorMessage: "Wrong Password. Enter correct password" })
-  } res.status(404).json({ success: false, errorMessage: "User not found. Check your user credentials" })
+  try {
+    const user = await findUserByUserName(username);
+    if (user) {
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (validPassword) {
+        const token = generateToken(user._id);
+        return res.status(200).json({ user, token, success: true, message: "Login Successful" })
+      } res.status(403).json({ success: false, errorMessage: "Wrong Password. Enter correct password" })
+    } res.status(404).json({ success: false, errorMessage: "User not found. Check your user credentials" })
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Something went wrong", errorMessage: error.message })
+  }
 })
 
 router.post("/signup", async (req, res) => {
