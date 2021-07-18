@@ -4,32 +4,23 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { Auth } = require("../models/auth.model");
 const { User } = require("../models/user.model");
-
-const jwtSecret = process.env['jwt-secret'];
-
-const findUserByUserName = (username) => {
-  return Auth.findOne({ username: new RegExp('^' + username + '$', "i") }, function(err, user) {
-    if (err) return console.log(err);
-  })
-};
-
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, jwtSecret, { expiresIn: '24h' });
-}
+const { findUserByUserName, generateToken } = require("../utils/utils")
 
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
   try {
     const user = await findUserByUserName(username);
-    if (user) {
-      const validPassword = await bcrypt.compare(password, user.password);
-      if (validPassword) {
-        const token = generateToken(user._id);
-        return res.status(200).json({ user, token, success: true, message: "Login Successful" })
-      } res.status(403).json({ success: false, errorMessage: "Wrong Password. Enter correct password" })
-    } res.status(404).json({ success: false, errorMessage: "User not found. Check your user credentials" })
+    if (!user) {
+      return res.status(404).json({ success: false, errorMessage: "User not found. Check your user credentials" })
+    }
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(403).json({ success: false, errorMessage: "Wrong Password. Enter correct password" })
+    }
+    const token = generateToken(user._id);
+    return res.status(200).json({ user, token, success: true, message: "Login Successful" })
   } catch (error) {
-    res.status(500).json({ success: false, message: "Something went wrong", errorMessage: error.message })
+    return res.status(500).json({ success: false, message: "Something went wrong", errorMessage: error.message })
   }
 })
 
@@ -47,7 +38,7 @@ router.post("/signup", async (req, res) => {
         _id: NewUser._id,
         wishList: [], cart: [], addresses: []
       });
-      const savedUserDetails = await NewUserDetails.save();
+      await NewUserDetails.save();
       return res.status(201).json({ user: savedUser, token, success: true, message: "Sign Up Successful" })
     } catch (error) {
       return res.status(401).json({ success: false, errorMessage: "Error while adding user" })

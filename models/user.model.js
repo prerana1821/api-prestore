@@ -8,7 +8,8 @@ const UserSchema = new Schema({
   _id: { type: Schema.Types.ObjectId, ref: 'Auth' },
   wishList: [{ productId: { type: Schema.Types.ObjectId, ref: 'Product' } }],
   cart: [{
-    productId: { type: Schema.Types.ObjectId, ref: 'Product' }, quantity: Number
+    productId: { type: Schema.Types.ObjectId, ref: 'Product' }, 
+    quantity: Number
   }],
   addresses: [
     {

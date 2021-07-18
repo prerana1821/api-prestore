@@ -1,10 +1,10 @@
 const jwt = require("jsonwebtoken");
-const jwtSecret = process.env['jwt-secret'];
+const JWT_SECRET = process.env['jwt-secret'];
 
 const authVerify = (req, res, next) => {
   const token = req.headers.authorization;
   try {
-    const decoded = jwt.verify(token, jwtSecret);
+    const decoded = jwt.verify(token, JWT_SECRET);
     req.user = { userId: decoded.userId };
     return next();
   } catch (error) {

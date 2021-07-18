@@ -2,19 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { extend } = require("lodash");
 const { User } = require("../models/user.model");
-
-router.param("id", async (req, res, next, id) => {
-  try {
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(400).json({ success: false, errorMessage: "unable to find user" });
-    }
-    req.user = user;
-    next();
-  } catch (error) {
-    res.status(400).json({ success: false, errorMessage: "unable to send user" })
-  }
-})
+const { populateData } = require("../utils/utils")
 
 router.get("/", async (req, res) => {
   try {
@@ -22,15 +10,11 @@ router.get("/", async (req, res) => {
     const user = await User.findById(userId);
     if (!user) {
       return res.status(400).json({ success: false, errorMessage: "unable to find user" });
-    } else {
-      const wholeObj = await user.populate('cart.productId').execPopulate();
-      const wholeObjWish = await user.populate('wishList.productId').execPopulate();
-      const object = wholeObj.cart.map((item) => {
-        const { _id, productId, quantity } = item;
-        return { _id, productId: { ...productId._doc, quantity } }
-      })
-      res.status(200).json({ user: { ...user._doc, cart: object, wishList: wholeObjWish.wishList }, success: true, message: "Successful" })
     }
+    const wholeObj = await user.populate('cart.productId').execPopulate();
+    const wholeObjWish = await user.populate('wishList.productId').execPopulate();
+    const object = populateData(wholeObj.cart)
+    return res.status(200).json({ user: { ...user._doc, cart: object, wishList: wholeObjWish.wishList }, success: true, message: "Successful" })
   } catch (error) {
     res.status(500).json({ success: false, errorMessage: "Error while retrieving userDetails", errorMessage: error.message })
   }
@@ -43,14 +27,10 @@ router.route("/cart")
       const user = await User.findById(userId);
       if (!user) {
         return res.status(400).json({ success: false, errorMessage: "unable to find user" });
-      } else {
-        const wholeObj = await user.populate('cart.productId').execPopulate();
-        const object = wholeObj.cart.map((item) => {
-          const { _id, productId, quantity } = item;
-          return { _id, productId: { ...productId._doc, quantity } }
-        })
-        return res.status(200).json({ cart: object, success: true, message: "Success" })
       }
+      const wholeObj = await user.populate('cart.productId').execPopulate();
+      const object = populateData(wholeObj.cart)
+      return res.status(200).json({ cart: object, success: true, message: "Success" })
     } catch (error) {
       res.status(500).json({ success: false, errorMessage: "Error while retrieving cart details", errorMessage: error.message })
     }
@@ -62,16 +42,12 @@ router.route("/cart")
       const productId = req.body;
       if (!user) {
         return res.status(400).json({ success: false, errorMessage: "unable to find user" });
-      } else {
-        user.cart.push({ productId: productId.id, quantity: 1 });
-        const savedProduct = await user.save();
-        const updatedObj = await savedProduct.populate({ path: 'cart.productId', select: 'name image price inStock offer' }).execPopulate();
-        const object = updatedObj.cart.map((item) => {
-          const { _id, productId, quantity } = item;
-          return { _id, productId: { ...productId._doc, quantity } }
-        });
-        return res.status(201).json({ cart: object, success: true, message: "Successful" });
       }
+      user.cart.push({ productId: productId.id, quantity: 1 });
+      const savedProduct = await user.save();
+      const updatedObj = await savedProduct.populate({ path: 'cart.productId', select: 'name image price inStock offer' }).execPopulate();
+      const object = populateData(updatedObj.cart)
+      return res.status(201).json({ cart: object, success: true, message: "Successful" });
     } catch (error) {
       res.status(500).json({ success: false, errorMessage: "Error while add item to cart", errorMessage: error.message })
     }
@@ -84,10 +60,9 @@ router.route("/wishlist")
       const user = await User.findById(userId);
       if (!user) {
         return res.status(400).json({ success: false, errorMessage: "unable to find user" });
-      } else {
-        const wholeObj = await user.populate('wishList.productId').execPopulate();
-        return res.status(200).json({ wishList: wholeObj.wishList, success: true, message: "Success" })
       }
+      const wholeObj = await user.populate('wishList.productId').execPopulate();
+      return res.status(200).json({ wishList: wholeObj.wishList, success: true, message: "Success" })
     } catch (error) {
       res.status(500).json({ success: false, errorMessage: "Error while retrieving wishList details", errorMessage: error.message })
     }
@@ -99,12 +74,11 @@ router.route("/wishlist")
       const productId = req.body;
       if (!user) {
         return res.status(400).json({ success: false, errorMessage: "unable to find user" });
-      } else {
-        user.wishList.push({ productId: productId.id });
-        const savedProduct = await user.save();
-        const updatedObj = await savedProduct.populate('wishList.productId').execPopulate();
-        return res.status(201).json({ wishList: updatedObj.wishList, success: true, message: "Successful" });
       }
+      user.wishList.push({ productId: productId.id });
+      const savedProduct = await user.save();
+      const updatedObj = await savedProduct.populate('wishList.productId').execPopulate();
+      return res.status(201).json({ wishList: updatedObj.wishList, success: true, message: "Successful" });
     } catch (error) {
       res.status(500).json({ success: false, errorMessage: "Error while add item to cart", errorMessage: error.message })
     }
@@ -119,14 +93,14 @@ router.route("/cart/:productId")
       const user = await User.findById(userId);
       if (!user) {
         return res.status(400).json({ success: false, errorMessage: "unable to find user" });
-      } else {
-        const product = user.cart.find(item => item.productId == productId)
-        if (product) {
-          let newProduct = extend(product, updateProduct);
-          await user.save();
-          return res.status(200).json({ product: newProduct, success: true, message: "Product Updated Successfully" })
-        } return res.status(404).json({ success: false, errorMessage: "The product id you requested doesn't exists" })
       }
+      const product = user.cart.find(item => item.productId == productId)
+      if (!product) {
+        return res.status(404).json({ success: false, errorMessage: "The product id you requested doesn't exists" })
+      }
+      const newProduct = extend(product, updateProduct);
+      await user.save();
+      return res.status(200).json({ product: newProduct, success: true, message: "Product Updated Successfully" })
     } catch (error) {
       res.status(500).json({ success: false, errorMessage: "Error while updating cart", errorMessage: error.message })
     }
@@ -138,14 +112,14 @@ router.route("/cart/:productId")
       const user = await User.findById(userId);
       if (!user) {
         return res.status(400).json({ success: false, errorMessage: "unable to find user" });
-      } else {
-        const product = user.cart.find(item => item.productId == productId)
-        if (product) {
-          user.cart.pull({ _id: product._id });
-          await user.save();
-          return res.status(200).json({ cart: user.cart, success: true, message: "Successful" });
-        } return res.status(404).json({ succes: false, errorMessage: "The product id you requested doesn't exists" });
       }
+      const product = user.cart.find(item => item.productId == productId)
+      if (!product) {
+        return res.status(404).json({ succes: false, errorMessage: "The product id you requested doesn't exists" });
+      }
+      user.cart.pull({ _id: product._id });
+      await user.save();
+      return res.status(200).json({ cart: user.cart, success: true, message: "Successful" });
     } catch (error) {
       res.status(500).json({ success: false, errorMessage: "Error while deleting item from cart", errorMessage: error.message })
     }
@@ -158,14 +132,14 @@ router.delete("/wishlist/:productId", async (req, res) => {
     const user = await User.findById(userId);
     if (!user) {
       return res.status(400).json({ success: false, errorMessage: "unable to find user" });
-    } else {
-      const product = user.wishList.find(item => item.productId == productId)
-      if (product) {
-        user.wishList.pull({ _id: product._id });
-        await user.save();
-        return res.status(200).json({ wishList: user.wishList, success: true, message: "Successful" });
-      } return res.status(404).json({ succes: false, errorMessage: "The product id you requested doesn't exists" });
     }
+    const product = user.wishList.find(item => item.productId == productId)
+    if (!product) {
+      return res.status(404).json({ succes: false, errorMessage: "The product id you requested doesn't exists" });
+    }
+    user.wishList.pull({ _id: product._id });
+    await user.save();
+    return res.status(200).json({ wishList: user.wishList, success: true, message: "Successful" });
   } catch (error) {
     res.status(500).json({ success: false, errorMessage: "Error while deleting item from wishList", errorMessage: error.message })
   }
@@ -178,9 +152,8 @@ router.route("/address")
       const user = await User.findById(userId);
       if (!user) {
         return res.status(400).json({ success: false, errorMessage: "unable to find user" });
-      } else {
-        return res.status(200).json({ addresses: user.addresses, success: true, message: "Success" })
       }
+      return res.status(200).json({ addresses: user.addresses, success: true, message: "Success" })
     } catch (error) {
       res.status(500).json({ success: false, errorMessage: "Error while retrieving addresses", errorMessage: error.message })
     }
@@ -192,12 +165,11 @@ router.route("/address")
       const user = await User.findById(userId);
       if (!user) {
         return res.status(400).json({ success: false, errorMessage: "unable to find user" });
-      } else {
-        user.addresses.push(newAddress);
-        const updatedUser = await user.save();
-        const newAddressFromDB = updatedUser.addresses.find((item) => item.phoneNumber == newAddress.phoneNumber);
-        return res.status(201).json({ address: newAddressFromDB, success: true, message: "Successful" });
       }
+      user.addresses.push(newAddress);
+      const updatedUser = await user.save();
+      const newAddressFromDB = updatedUser.addresses.find((item) => item.phoneNumber == newAddress.phoneNumber);
+      return res.status(201).json({ address: newAddressFromDB, success: true, message: "Successful" });
     } catch (error) {
       res.status(500).json({ success: false, errorMessage: "Error while adding address", errorMessage: error.message })
     }
@@ -212,14 +184,14 @@ router.route("/address/:addressId")
       const user = await User.findById(userId);
       if (!user) {
         return res.status(400).json({ success: false, errorMessage: "unable to find user" });
-      } else {
-        const address = user.addresses.find(item => item._id == addressId)
-        if (address) {
-          let newAddress = extend(address, updateAddress.updateAddress);
-          await user.save();
-          return res.status(200).json({ address: newAddress, success: true, message: "Address Updated Successfully" })
-        } return res.status(404).json({ success: false, errorMessage: "The address id you requested doesn't exists" });
       }
+      const address = user.addresses.find(item => item._id == addressId)
+      if (!address) {
+        return res.status(404).json({ success: false, errorMessage: "The address id you requested doesn't exists" });
+      }
+      const newAddress = extend(address, updateAddress.updateAddress);
+      await user.save();
+      return res.status(200).json({ address: newAddress, success: true, message: "Address Updated Successfully" })
     } catch (error) {
       res.status(500).json({ success: false, errorMessage: "Error while updating address", errorMessage: error.message })
     }
@@ -231,14 +203,14 @@ router.route("/address/:addressId")
       const user = await User.findById(userId);
       if (!user) {
         return res.status(400).json({ success: false, errorMessage: "unable to find user" });
-      } else {
-        const address = user.addresses.find(item => item._id == addressId)
-        if (address) {
-          user.addresses.pull({ _id: address._id });
-          await user.save();
-          return res.status(200).json({ addresses: user.addresses, success: true, message: "Successful" });
-        } return res.status(404).json({ succes: false, errorMessage: "The address id you requested doesn't exists" });
       }
+      const address = user.addresses.find(item => item._id == addressId)
+      if (!address) {
+        return res.status(404).json({ succes: false, errorMessage: "The address id you requested doesn't exists" });
+      }
+      user.addresses.pull({ _id: address._id });
+      await user.save();
+      return res.status(200).json({ addresses: user.addresses, success: true, message: "Successful" });
     } catch (error) {
       res.status(500).json({ success: false, errorMessage: "Error while deleting address", errorMessage: error.message })
     }
